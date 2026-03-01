@@ -1,0 +1,53 @@
+[package]
+name = "openbci"
+version = "0.0.1"
+edition = "2021"
+authors = ["Nataliya Kosmyna"]
+description = "Native Rust driver for OpenBCI EEG/EMG boards (Cyton, Cyton+Daisy, Ganglion, Galea) with standard 10-05/10-10/10-20 electrode placement"
+homepage = "https://github.com/nataliyakosmyna/openbci"
+repository = "https://github.com/nataliyakosmyna/openbci"
+documentation = "https://docs.rs/openbci"
+license = "MIT"
+keywords = ["eeg", "bci", "openbci", "neuroscience", "biosignal"]
+categories = ["science", "hardware-support", "embedded"]
+readme = "README.md"
+exclude = ["/target"]
+
+# ── docs.rs build configuration ───────────────────────────────────────────────
+# Instructs docs.rs to enable all features so that GanglionBoard (behind the
+# `ble` feature) is included in the rendered API documentation.
+# rustdoc-args passes --cfg docsrs so #[doc(cfg(feature = "ble"))] badges work.
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = ["ble"]
+# Enable Ganglion native BLE support (requires Bluetooth hardware and btleplug)
+ble = ["btleplug", "tokio", "futures"]
+
+[dependencies]
+# Serial communication (Cyton / Ganglion dongle)
+serialport = "4"
+
+# Bluetooth LE for native Ganglion support (optional, behind `ble` feature)
+btleplug = { version = "0.11", optional = true }
+tokio    = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros"], optional = true }
+futures  = { version = "0.3", optional = true }
+
+# Blocking HTTP client used by the WiFi Shield boards
+ureq = { version = "2", features = ["json"] }
+
+# Data serialisation (WiFi shield JSON API)
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+thiserror = "1"
+
+# Structured logging
+log = "0.4"
+
+[dev-dependencies]
+# Enable log output in integration tests and examples
+env_logger = "0.10"
